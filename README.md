@@ -1,5 +1,7 @@
 # Sanjay Mohan's Portfolio Website
 
+[![CI/CD](https://github.com/codebysanjay/portfolio-website/actions/workflows/ci.yml/badge.svg)](https://github.com/codebysanjay/portfolio-website/actions/workflows/ci.yml)
+
 A modern, responsive portfolio website built with Next.js 14, TypeScript, Tailwind CSS, and Firebase. Features include a blog system, contact form, and project showcase.
 
 ## Features

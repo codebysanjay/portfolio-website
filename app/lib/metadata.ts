@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import { BlogPost } from './blogService';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sanjaymohan.dev';
+// Using a temporary placeholder URL until production URL is available
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://placeholder-url.com';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL(baseUrl),

@@ -1,83 +1,149 @@
-# Android Developer Portfolio Website
+# Sanjay Mohan's Portfolio Website
 
-A modern, responsive portfolio website built with Next.js, Tailwind CSS, and Framer Motion.
+A modern, responsive portfolio website built with Next.js 14, TypeScript, Tailwind CSS, and Firebase. Features include a blog system, contact form, and project showcase.
 
 ## Features
 
-- 🌓 Dark/Light mode toggle
+- 🎨 Modern UI with Tailwind CSS and shadcn/ui
 - 📱 Fully responsive design
-- ✨ Smooth animations with Framer Motion
-- 📝 Blog section (placeholder for Firebase integration)
-- 📧 Contact form with email integration
-- 🎨 Modern UI with Tailwind CSS
-- 🔍 SEO optimized
+- 📝 Blog system with Firebase integration
+- 📧 Contact form with email notifications
+- 🔒 Admin authentication for blog management
+- 🚀 Optimized for performance and SEO
+- 🌙 Dark mode support
+
+## Tech Stack
+
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS, shadcn/ui
+- **Database:** Firebase Firestore
+- **Authentication:** Firebase Auth
+- **Deployment:** Vercel
+- **Email:** Nodemailer (Gmail)
+
+## Prerequisites
+
+Before you begin, ensure you have the following:
+- Node.js 18.17 or later
+- npm or yarn
+- A Firebase project
+- A Gmail account (for the contact form)
 
 ## Getting Started
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/sanjaymohan/portfoliowebsite.git
-cd portfoliowebsite
+git clone https://github.com/yourusername/portfolio-website.git
+cd portfolio-website
 ```
 
 2. Install dependencies:
 ```bash
 npm install
+# or
+yarn install
 ```
 
-3. Create a `.env.local` file in the root directory and add your email configuration:
+3. Create a `.env.local` file in the root directory with the following variables:
+
 ```env
-EMAIL_USER=your-email@gmail.com
+# Firebase Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
+NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
+
+# Email Configuration (for Contact Form)
+EMAIL_USER=your-gmail@gmail.com
 EMAIL_PASS=your-app-specific-password
+
+# Admin Access
+NEXT_PUBLIC_AUTHORIZED_EMAILS=admin1@example.com,admin2@example.com
 ```
 
-Note: For Gmail, you need to use an App Password. Generate one at: https://myaccount.google.com/apppasswords
+### Setting up Firebase
 
-4. Start the development server:
+1. Create a new Firebase project at [Firebase Console](https://console.firebase.google.com)
+2. Enable Authentication (with Google provider)
+3. Create a Firestore database
+4. Get your Firebase configuration from Project Settings > General > Your Apps > Web App
+5. Add your Firebase config values to `.env.local`
+
+### Setting up Gmail for Contact Form
+
+1. Enable 2-Step Verification in your Google Account
+2. Generate an App Password:
+   - Go to Google Account > Security > App Passwords
+   - Select "Mail" and your device
+   - Copy the generated password
+3. Use this password as `EMAIL_PASS` in `.env.local`
+
+### Setting up Admin Access
+
+1. Add authorized email addresses to `NEXT_PUBLIC_AUTHORIZED_EMAILS` in `.env.local`
+2. These emails will have access to the admin dashboard for blog management
+3. Separate multiple emails with commas
+
+## Development
+
+Run the development server:
+
 ```bash
 npm run dev
+# or
+yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Customization
+## Building for Production
 
-1. Update personal information:
-   - Edit `app/components/Hero.tsx` for the main hero section
-   - Edit `app/components/About.tsx` for the about section
-   - Edit `app/components/Projects.tsx` for project details
-   - Edit `app/components/Header.tsx` for social links
-
-2. Add your resume:
-   - Replace `public/resume.pdf` with your actual resume
-
-3. Add project images:
-   - Add your project screenshots to the `public/projects` directory
-   - Update image paths in `app/components/Projects.tsx`
-
-4. Customize theme:
-   - Edit `app/globals.css` for color scheme
-   - Edit `tailwind.config.ts` for additional theme customization
+```bash
+npm run build
+# or
+yarn build
+```
 
 ## Deployment
 
-The site can be deployed to Vercel with zero configuration:
+The site is configured for deployment on Vercel:
 
 1. Push your code to GitHub
 2. Import the repository in Vercel
-3. Add your environment variables
+3. Add all environment variables from `.env.local` to Vercel's project settings
 4. Deploy!
 
-## Technologies Used
+## Project Structure
 
-- Next.js 14
-- React 18
-- TypeScript
-- Tailwind CSS
-- Framer Motion
-- Nodemailer
-- Vercel (deployment)
+```
+portfolio-website/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── blog/              # Blog pages
+│   ├── components/        # React components
+│   └── lib/               # Utility functions and services
+├── content/               # Blog content (markdown files)
+├── public/                # Static assets
+└── scripts/              # Utility scripts
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License - feel free to use this template for your own portfolio!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+Sanjay Mohan - [@sanjaymohan](https://twitter.com/sanjaymohan)
+
+Project Link: [https://github.com/yourusername/portfolio-website](https://github.com/yourusername/portfolio-website)

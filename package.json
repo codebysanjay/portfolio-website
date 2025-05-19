@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "postinstall": "next telemetry disable",
     "migrate-blogs": "ts-node scripts/migrateBlogs.ts"
   },
   "dependencies": {

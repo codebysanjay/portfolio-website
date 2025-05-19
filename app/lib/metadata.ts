@@ -1,8 +1,10 @@
 import { Metadata } from 'next';
 import { BlogPost } from './blogService';
 
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sanjaymohan.dev';
+
 const baseMetadata: Metadata = {
-  metadataBase: new URL('https://sanjaymohan.dev'),
+  metadataBase: new URL(baseUrl),
   title: {
     default: 'Sanjay Mohan | Software Engineer',
     template: '%s | Sanjay Mohan',

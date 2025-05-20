@@ -1,22 +1,98 @@
+import { db } from '../lib/firebase';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import Link from 'next/link';
-import Script from 'next/script';
-import { getBlogPosts, BlogPost } from '../lib/blogService';
 import { generateBlogListMetadata } from '../lib/metadata';
+import Script from 'next/script';
 import Image from 'next/image';
 
 export const metadata = generateBlogListMetadata();
 
-export default async function BlogPage() {
-  let posts: BlogPost[] = [];
-  let error: Error | null = null;
+// Define types locally to avoid conflicts
+interface BlogPost {
+  id: string;
+  title: string;
+  date: string;
+  content: string;
+  slug: string;
+}
 
+// Local function to fetch blog posts
+async function fetchBlogPosts(): Promise<BlogPost[]> {
   try {
     console.log('Fetching blog posts...');
-    posts = await getBlogPosts();
-    console.log('Blog posts fetched:', posts.length);
-  } catch (err) {
-    console.error('Error fetching blog posts:', err);
-    error = err instanceof Error ? err : new Error('Unknown error occurred');
+    const blogsCollection = collection(db, 'blogs');
+    console.log('Collection reference created');
+    
+    const q = query(blogsCollection, orderBy('date', 'desc'));
+    console.log('Query created');
+    
+    const querySnapshot = await getDocs(q);
+    console.log('Query executed, got snapshot');
+    console.log('Number of documents:', querySnapshot.size);
+    
+    const posts = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      console.log('Document data:', { id: doc.id, title: data.title });
+      return {
+        id: doc.id,
+        title: data.title,
+        date: data.date,
+        content: data.content,
+        slug: data.slug
+      } as BlogPost;
+    });
+    
+    console.log('Successfully processed', posts.length, 'blog posts');
+    return posts;
+  } catch (error) {
+    console.error('Error fetching blog posts:', error);
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
+    throw error;
+  }
+}
+
+export default async function BlogPage() {
+  let posts: BlogPost[] = [];
+  let error: string | null = null;
+  
+  try {
+    console.log('Starting to fetch blog posts in page component...');
+    posts = await fetchBlogPosts();
+    console.log('Successfully fetched blog posts in page component');
+  } catch (e) {
+    console.error('Error in BlogPage component:', e);
+    error = e instanceof Error ? e.message : 'Failed to load blog posts';
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Error Loading Blog</h1>
+            <p className="text-red-600 mb-4">{error}</p>
+            <p className="text-gray-600">Please try refreshing the page or contact support if the problem persists.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (posts.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Blog</h1>
+            <p className="text-gray-600">No blog posts found.</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const jsonLd = {
@@ -32,13 +108,13 @@ export default async function BlogPage() {
     blogPost: posts.map(post => ({
       '@type': 'BlogPosting',
       headline: post.title,
-      description: post.excerpt,
+      description: post.content.substring(0, 200),
       author: {
         '@type': 'Person',
-        name: post.author.name,
+        name: 'Sanjay Mohan',
       },
       datePublished: post.date,
-      keywords: post.tags.join(', '),
+      keywords: '',
       url: `https://sanjaymohan.dev/blog/${post.slug}`,
     })),
   };
@@ -53,60 +129,17 @@ export default async function BlogPage() {
       <div className="min-h-screen pb-12">
         <div className="container mx-auto px-4 py-2">
           <h1 className="text-4xl font-bold mb-6">Blog</h1>
-          {error ? (
-            <div className="text-red-500">
-              Error loading blog posts. Please try again later.
-              <pre className="mt-2 text-sm">{error.message}</pre>
-            </div>
-          ) : posts.length === 0 ? (
-            <div className="text-gray-500">No blog posts found.</div>
-          ) : (
-            <div className="grid gap-8 md:grid-cols-2">
-              {posts.map((post) => (
-                <article
-                  key={post.slug}
-                  className="bg-card text-card-foreground rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-border"
-                >
-                  <div className="p-6">
-                    <Link href={`/blog/${post.slug}`}>
-                      <h2 className="text-2xl font-semibold mb-2 hover:text-primary transition-colors">
-                        {post.title}
-                      </h2>
-                    </Link>
-                    <div className="flex items-center text-sm text-muted-foreground mb-4">
-                      <time dateTime={post.date}>
-                        {new Date(post.date).toLocaleDateString()}
-                      </time>
-                      <span className="mx-2">•</span>
-                      <div className="flex items-center gap-2">
-                        {post.author.photoURL && (
-                          <Image
-                            src={post.author.photoURL}
-                            alt={post.author.name}
-                            width={24}
-                            height={24}
-                            className="rounded-full"
-                          />
-                        )}
-                        <span>{post.author.name}</span>
-                      </div>
-                    </div>
-                    <p className="text-muted-foreground mb-4">{post.excerpt}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          )}
+          <div className="space-y-8">
+            {posts.map((post) => (
+              <article key={post.id} className="bg-white shadow rounded-lg p-6">
+                <Link href={`/blog/${post.slug}`} className="block hover:bg-gray-50">
+                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">{post.title}</h2>
+                  <p className="text-gray-600 mb-4">{new Date(post.date).toLocaleDateString()}</p>
+                  <p className="text-gray-700">{post.content.substring(0, 200)}...</p>
+                </Link>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </>

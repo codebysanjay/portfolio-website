@@ -53,24 +53,55 @@ function CodeBlock({ code, language }: { code: string; language: string }) {
 }
 
 function processContent(content: string) {
-  // Split content into paragraphs and code blocks
-  const parts = content.split(/(```[\s\S]*?```)/);
+  // First, handle code blocks
+  const parts = content.split(/(<pre><code class="language-[\w-]+">[\s\S]*?<\/code><\/pre>)/);
   
   return parts.map((part, index) => {
-    if (part.startsWith('```')) {
-      // Extract language and code from code block
-      const match = part.match(/```(\w+)?\n([\s\S]*?)```/);
-      if (match) {
-        const [_, language = 'text', code] = match;
-        return <CodeBlock key={index} code={code.trim()} language={language} />;
-      }
+    // Check if this is a code block
+    const codeMatch = part.match(/<pre><code class="language-([\w-]+)">([\s\S]*?)<\/code><\/pre>/);
+    if (codeMatch) {
+      const [_, language, code] = codeMatch;
+      return <CodeBlock key={index} code={code.trim()} language={language} />;
     }
-    // Regular paragraph
-    return (
-      <p key={index} className="text-muted-foreground mb-4">
-        {part}
-      </p>
-    );
+
+    // For non-code content, we need to handle HTML tags
+    // First, split by horizontal rules
+    const sections = part.split(/<hr\s*\/?>/);
+    
+    return sections.map((section, sectionIndex) => {
+      // Process each section
+      const processedSection = section
+        // Handle headings
+        .replace(/<h([1-6])>(.*?)<\/h\1>/g, (_, level, text) => {
+          const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
+          return `<${HeadingTag} class="text-foreground font-bold mt-8 mb-4">${text}</${HeadingTag}>`;
+        })
+        // Handle paragraphs
+        .replace(/<p>(.*?)<\/p>/g, (_, text) => {
+          return `<p class="text-muted-foreground mb-4">${text}</p>`;
+        })
+        // Handle strong tags
+        .replace(/<strong>(.*?)<\/strong>/g, (_, text) => {
+          return `<strong class="text-foreground font-semibold">${text}</strong>`;
+        })
+        // Handle lists
+        .replace(/<ul>([\s\S]*?)<\/ul>/g, (_, content) => {
+          return `<ul class="list-disc list-inside text-muted-foreground mb-4">${content}</ul>`;
+        })
+        .replace(/<li>(.*?)<\/li>/g, (_, content) => {
+          return `<li class="mb-2">${content}</li>`;
+        })
+        // Handle line breaks
+        .replace(/<br\s*\/?>/g, '<br />');
+
+      return (
+        <div 
+          key={`${index}-${sectionIndex}`}
+          className="mb-8"
+          dangerouslySetInnerHTML={{ __html: processedSection }}
+        />
+      );
+    });
   });
 }
 
@@ -139,7 +170,7 @@ export default async function BlogPost({ params }: Props) {
             )}
           </header>
 
-          <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-strong:text-foreground prose-code:text-foreground prose-pre:bg-muted prose-pre:border prose-pre:border-border">
+          <div className="prose prose-lg dark:prose-invert max-w-none">
             {processContent(post.content)}
           </div>
         </div>

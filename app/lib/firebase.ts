@@ -1,6 +1,6 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore, collection, getDocs, connectFirestoreEmulator } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
 
 // Log the current working directory and environment
 console.log('Current working directory:', process.cwd());
@@ -55,12 +55,39 @@ if (missingFields.length > 0) {
 }
 
 // Initialize Firebase
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+console.log('Initializing Firebase with config:', {
+  projectId: firebaseConfig.projectId,
+  authDomain: firebaseConfig.authDomain,
+  // Don't log sensitive keys
+});
+
+let app;
+try {
+  if (getApps().length === 0) {
+    console.log('No Firebase apps found, initializing new app...');
+    app = initializeApp(firebaseConfig);
+    console.log('Firebase app initialized successfully');
+  } else {
+    console.log('Using existing Firebase app');
+    app = getApp();
+  }
+} catch (error) {
+  console.error('Error initializing Firebase:', error);
+  throw error;
+}
+
+// Initialize Firestore
+console.log('Initializing Firestore...');
 const db = getFirestore(app);
+console.log('Firestore initialized successfully');
+
+// Initialize Auth
+console.log('Initializing Auth...');
 const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+console.log('Auth initialized successfully');
 
 // Configure Google Auth Provider
+const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
@@ -68,11 +95,31 @@ googleProvider.setCustomParameters({
 // Test function to verify connection
 export async function testFirebaseConnection() {
   try {
-    console.log('Attempting to connect to Firestore...');
+    console.log('Testing Firebase connection...');
+    console.log('Current Firebase config:', {
+      projectId: firebaseConfig.projectId,
+      authDomain: firebaseConfig.authDomain,
+    });
+    
     const blogsCollection = collection(db, 'blogs');
+    console.log('Attempting to fetch blogs collection...');
     const querySnapshot = await getDocs(blogsCollection);
     console.log('Firebase connection successful!');
     console.log('Number of blog posts:', querySnapshot.size);
+    
+    // Log the first document if it exists
+    if (!querySnapshot.empty) {
+      const firstDoc = querySnapshot.docs[0];
+      console.log('First document data:', {
+        id: firstDoc.id,
+        title: firstDoc.data().title,
+        date: firstDoc.data().date,
+        // Don't log full content
+      });
+    } else {
+      console.log('No documents found in blogs collection');
+    }
+    
     return true;
   } catch (error) {
     console.error('Firebase connection error details:', error);

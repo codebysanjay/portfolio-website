@@ -7,42 +7,43 @@ import Image from 'next/image';
 
 export const metadata = generateBlogListMetadata();
 
-// Define types locally to avoid conflicts
 interface BlogPost {
   id: string;
   title: string;
   date: string;
   content: string;
   slug: string;
+  excerpt?: string;
+  author?: {
+    name: string;
+    photoURL?: string;
+  };
+  tags?: string[];
 }
 
-// Local function to fetch blog posts
 async function fetchBlogPosts(): Promise<BlogPost[]> {
   try {
-    console.log('Fetching blog posts...');
     const blogsCollection = collection(db, 'blogs');
-    console.log('Collection reference created');
-    
     const q = query(blogsCollection, orderBy('date', 'desc'));
-    console.log('Query created');
-    
     const querySnapshot = await getDocs(q);
-    console.log('Query executed, got snapshot');
-    console.log('Number of documents:', querySnapshot.size);
     
     const posts = querySnapshot.docs.map(doc => {
       const data = doc.data();
-      console.log('Document data:', { id: doc.id, title: data.title });
       return {
         id: doc.id,
         title: data.title,
         date: data.date,
         content: data.content,
-        slug: data.slug
+        slug: data.slug,
+        excerpt: data.excerpt || data.content.substring(0, 200) + '...',
+        author: {
+          name: data.author?.name || 'Sanjay Mohan',
+          photoURL: data.author?.photoURL
+        },
+        tags: data.tags || []
       } as BlogPost;
     });
     
-    console.log('Successfully processed', posts.length, 'blog posts');
     return posts;
   } catch (error) {
     console.error('Error fetching blog posts:', error);
@@ -60,9 +61,7 @@ export default async function BlogPage() {
   let error: string | null = null;
   
   try {
-    console.log('Starting to fetch blog posts in page component...');
     posts = await fetchBlogPosts();
-    console.log('Successfully fetched blog posts in page component');
   } catch (e) {
     console.error('Error in BlogPage component:', e);
     error = e instanceof Error ? e.message : 'Failed to load blog posts';
@@ -108,13 +107,13 @@ export default async function BlogPage() {
     blogPost: posts.map(post => ({
       '@type': 'BlogPosting',
       headline: post.title,
-      description: post.content.substring(0, 200),
+      description: post.excerpt || post.content.substring(0, 200),
       author: {
         '@type': 'Person',
-        name: 'Sanjay Mohan',
+        name: post.author?.name || 'Sanjay Mohan',
       },
       datePublished: post.date,
-      keywords: '',
+      keywords: post.tags?.join(', ') || '',
       url: `https://sanjaymohan.dev/blog/${post.slug}`,
     })),
   };
@@ -126,17 +125,53 @@ export default async function BlogPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen pb-12">
-        <div className="container mx-auto px-4 py-2">
-          <h1 className="text-4xl font-bold mb-6">Blog</h1>
-          <div className="space-y-8">
+      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-900 mb-8">Blog</h1>
+          <div className="grid gap-8 md:grid-cols-2">
             {posts.map((post) => (
-              <article key={post.id} className="bg-white shadow rounded-lg p-6">
-                <Link href={`/blog/${post.slug}`} className="block hover:bg-gray-50">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-2">{post.title}</h2>
-                  <p className="text-gray-600 mb-4">{new Date(post.date).toLocaleDateString()}</p>
-                  <p className="text-gray-700">{post.content.substring(0, 200)}...</p>
-                </Link>
+              <article
+                key={post.id}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-200"
+              >
+                <div className="p-6">
+                  <Link href={`/blog/${post.slug}`}>
+                    <h2 className="text-2xl font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                      {post.title}
+                    </h2>
+                  </Link>
+                  <div className="flex items-center text-sm text-gray-500 mb-4">
+                    <time dateTime={post.date}>
+                      {new Date(post.date).toLocaleDateString()}
+                    </time>
+                    <span className="mx-2">•</span>
+                    <div className="flex items-center gap-2">
+                      {post.author?.photoURL && (
+                        <Image
+                          src={post.author.photoURL}
+                          alt={post.author.name}
+                          width={24}
+                          height={24}
+                          className="rounded-full"
+                        />
+                      )}
+                      <span>{post.author?.name}</span>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 mb-4">{post.excerpt || post.content.substring(0, 200)}...</p>
+                  {post.tags && post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {post.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </article>
             ))}
           </div>

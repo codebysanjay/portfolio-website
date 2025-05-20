@@ -6,6 +6,60 @@ import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth'
 console.log('Current working directory:', process.cwd());
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
+// Validate environment variables
+const requiredEnvVars = {
+  NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  NEXT_PUBLIC_FIREBASE_APP_ID: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  NEXT_PUBLIC_AUTHORIZED_EMAILS: process.env.NEXT_PUBLIC_AUTHORIZED_EMAILS,
+};
+
+// Log environment variable status
+console.log('Environment Variables Status:');
+Object.entries(requiredEnvVars).forEach(([key, value]) => {
+  console.log(`${key}: ${value ? '✅ Set' : '❌ Missing'}`);
+  if (!value) {
+    console.log(`  Expected format for ${key}:`);
+    switch (key) {
+      case 'NEXT_PUBLIC_FIREBASE_API_KEY':
+        console.log('  NEXT_PUBLIC_FIREBASE_API_KEY=AIza...');
+        break;
+      case 'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN':
+        console.log('  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com');
+        break;
+      case 'NEXT_PUBLIC_FIREBASE_PROJECT_ID':
+        console.log('  NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id');
+        break;
+      case 'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET':
+        console.log('  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com');
+        break;
+      case 'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID':
+        console.log('  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789');
+        break;
+      case 'NEXT_PUBLIC_FIREBASE_APP_ID':
+        console.log('  NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123');
+        break;
+      case 'NEXT_PUBLIC_AUTHORIZED_EMAILS':
+        console.log('  NEXT_PUBLIC_AUTHORIZED_EMAILS=email1@example.com,email2@example.com');
+        break;
+    }
+  }
+});
+
+// Check for missing required variables
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([_, value]) => !value)
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
+  const errorMessage = `Missing required environment variables: ${missingVars.join(', ')}`;
+  console.error(errorMessage);
+  throw new Error(errorMessage);
+}
+
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -14,45 +68,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
-// Debug logging with more details
-console.log('Environment Variables Status:');
-Object.entries(firebaseConfig).forEach(([key, value]) => {
-  console.log(`${key}: ${value ? '✅ Set' : '❌ Missing'}`);
-  if (!value) {
-    console.log(`  Expected format for ${key}:`);
-    switch (key) {
-      case 'apiKey':
-        console.log('  NEXT_PUBLIC_FIREBASE_API_KEY=AIza...');
-        break;
-      case 'authDomain':
-        console.log('  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com');
-        break;
-      case 'projectId':
-        console.log('  NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id');
-        break;
-      case 'storageBucket':
-        console.log('  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com');
-        break;
-      case 'messagingSenderId':
-        console.log('  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789');
-        break;
-      case 'appId':
-        console.log('  NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123');
-        break;
-    }
-  }
-});
-
-// Validate required fields
-const requiredFields = ['apiKey', 'authDomain', 'projectId', 'appId'];
-const missingFields = requiredFields.filter(field => !firebaseConfig[field as keyof typeof firebaseConfig]);
-
-if (missingFields.length > 0) {
-  const errorMessage = `Missing required Firebase configuration fields: ${missingFields.join(', ')}`;
-  console.error(errorMessage);
-  throw new Error(errorMessage);
-}
 
 // Initialize Firebase
 console.log('Initializing Firebase with config:', {

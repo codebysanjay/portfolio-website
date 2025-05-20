@@ -69,12 +69,12 @@ export default async function BlogPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Error Loading Blog</h1>
-            <p className="text-red-600 mb-4">{error}</p>
-            <p className="text-gray-600">Please try refreshing the page or contact support if the problem persists.</p>
+            <h1 className="text-3xl font-bold text-foreground mb-4">Error Loading Blog</h1>
+            <p className="text-destructive mb-4">{error}</p>
+            <p className="text-muted-foreground">Please try refreshing the page or contact support if the problem persists.</p>
           </div>
         </div>
       </div>
@@ -83,11 +83,11 @@ export default async function BlogPage() {
 
   if (posts.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Blog</h1>
-            <p className="text-gray-600">No blog posts found.</p>
+            <h1 className="text-3xl font-bold text-foreground mb-4">Blog</h1>
+            <p className="text-muted-foreground">No blog posts found.</p>
           </div>
         </div>
       </div>
@@ -125,22 +125,22 @@ export default async function BlogPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold text-gray-900 mb-8">Blog</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-8">Blog</h1>
           <div className="grid gap-8 md:grid-cols-2">
             {posts.map((post) => (
               <article
                 key={post.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-gray-200"
+                className="bg-card text-card-foreground rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-border"
               >
                 <div className="p-6">
                   <Link href={`/blog/${post.slug}`}>
-                    <h2 className="text-2xl font-semibold text-gray-900 mb-2 hover:text-blue-600 transition-colors">
+                    <h2 className="text-2xl font-semibold mb-2 hover:text-primary transition-colors">
                       {post.title}
                     </h2>
                   </Link>
-                  <div className="flex items-center text-sm text-gray-500 mb-4">
+                  <div className="flex items-center text-sm text-muted-foreground mb-4">
                     <time dateTime={post.date}>
                       {new Date(post.date).toLocaleDateString()}
                     </time>
@@ -158,13 +158,13 @@ export default async function BlogPage() {
                       <span>{post.author?.name}</span>
                     </div>
                   </div>
-                  <p className="text-gray-600 mb-4">{post.excerpt || post.content.substring(0, 200)}...</p>
+                  <p className="text-muted-foreground mb-4">{post.excerpt || post.content.substring(0, 200)}...</p>
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {post.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full"
+                          className="px-3 py-1 bg-muted text-muted-foreground text-sm rounded-full"
                         >
                           {tag}
                         </span>

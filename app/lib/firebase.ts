@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore, collection, getDocs, connectFirestoreEmulator } from 'firebase/firestore';
-import { getAuth, connectAuthEmulator, GoogleAuthProvider } from 'firebase/auth';
+import { getFirestore, collection, getDocs, connectFirestoreEmulator, Firestore } from 'firebase/firestore';
+import { getAuth, connectAuthEmulator, GoogleAuthProvider, Auth } from 'firebase/auth';
 
 // Log the current working directory and environment
 console.log('Current working directory:', process.cwd());
@@ -88,18 +88,45 @@ try {
   }
 } catch (error) {
   console.error('Error initializing Firebase:', error);
+  if (error instanceof Error) {
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+  }
   throw error;
 }
 
-// Initialize Firestore
+// Initialize Firestore with error handling
 console.log('Initializing Firestore...');
-const db = getFirestore(app);
-console.log('Firestore initialized successfully');
+let db: Firestore;
+try {
+  db = getFirestore(app);
+  console.log('Firestore initialized successfully');
+} catch (error) {
+  console.error('Error initializing Firestore:', error);
+  if (error instanceof Error) {
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+  }
+  throw error;
+}
 
-// Initialize Auth
+// Initialize Auth with error handling
 console.log('Initializing Auth...');
-const auth = getAuth(app);
-console.log('Auth initialized successfully');
+let auth: Auth;
+try {
+  auth = getAuth(app);
+  console.log('Auth initialized successfully');
+} catch (error) {
+  console.error('Error initializing Auth:', error);
+  if (error instanceof Error) {
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+  }
+  throw error;
+}
 
 // Configure Google Auth Provider
 const googleProvider = new GoogleAuthProvider();
@@ -107,7 +134,7 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
-// Test function to verify connection
+// Test function to verify connection with more detailed error handling
 export async function testFirebaseConnection() {
   try {
     console.log('Testing Firebase connection...');
@@ -117,18 +144,21 @@ export async function testFirebaseConnection() {
     });
     
     const blogsCollection = collection(db, 'blogs');
+    console.log('Collection reference created for blogs');
+    
     console.log('Attempting to fetch blogs collection...');
     const querySnapshot = await getDocs(blogsCollection);
     console.log('Firebase connection successful!');
-    console.log('Number of blog posts:', querySnapshot.size);
+    console.log('Number of documents:', querySnapshot.size);
     
     // Log the first document if it exists
     if (!querySnapshot.empty) {
       const firstDoc = querySnapshot.docs[0];
+      const data = firstDoc.data();
       console.log('First document data:', {
         id: firstDoc.id,
-        title: firstDoc.data().title,
-        date: firstDoc.data().date,
+        title: data.title,
+        date: data.date,
         // Don't log full content
       });
     } else {
@@ -142,6 +172,15 @@ export async function testFirebaseConnection() {
       console.error('Error name:', error.name);
       console.error('Error message:', error.message);
       console.error('Error stack:', error.stack);
+      
+      // Check for specific Firebase error codes
+      if (error.message.includes('permission-denied')) {
+        console.error('Permission denied error. Please check Firebase security rules.');
+      } else if (error.message.includes('not-found')) {
+        console.error('Collection not found error. Please check if the blogs collection exists.');
+      } else if (error.message.includes('unauthenticated')) {
+        console.error('Unauthenticated error. Please check Firebase authentication.');
+      }
     }
     return false;
   }

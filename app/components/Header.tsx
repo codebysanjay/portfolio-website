@@ -5,7 +5,7 @@ import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { FiGithub, FiLinkedin, FiTwitter, FiSun, FiMoon, FiMenu, FiX } from 'react-icons/fi';
+import { FiGithub, FiLinkedin, FiX, FiSun, FiMoon, FiMenu } from 'react-icons/fi';
 import { FaFileDownload } from 'react-icons/fa';
 import { ThemeToggle } from './ThemeToggle';
 import { Github, Linkedin } from 'lucide-react';
@@ -22,9 +22,9 @@ const socialLinks = [
     icon: FiLinkedin,
   },
   {
-    name: 'Twitter',
-    url: 'https://twitter.com/sanjaymohan',
-    icon: FiTwitter,
+    name: 'X',
+    url: 'https://x.com/sanjaymohan17',
+    icon: FiX,
   },
 ];
 

@@ -53,8 +53,8 @@ const baseMetadata: Metadata = {
     card: 'summary_large_image',
     title: 'Sanjay Mohan | Android & Web Developer',
     description: 'Software Engineer specializing in Android development with Kotlin, Jetpack Compose, and Firebase. Expert in building modern, scalable mobile and web applications.',
-    creator: '@sanjaymohan',
-    site: '@sanjaymohan',
+    creator: '@sanjaymohan17',
+    site: '@sanjaymohan17',
     images: ['/og-image.jpg'],
   },
   icons: {

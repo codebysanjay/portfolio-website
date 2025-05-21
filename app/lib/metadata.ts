@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { BlogPost } from './blogService';
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sanjaymohan.dev';
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sanjaymohan.in';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL(baseUrl),
@@ -78,7 +78,7 @@ const baseMetadata: Metadata = {
     canonical: 'https://sanjaymohan.dev',
   },
   verification: {
-    google: 'your-google-site-verification', // Add your Google Search Console verification code
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'your-verification-code-here', // Replace with your actual verification code
   },
 };
 

@@ -93,7 +93,7 @@ const About: React.FC = () => {
                   <FaGithub className="text-2xl" />
                 </motion.a>
                 <motion.a
-                  href="https://linkedin.com/in/sanjaymohan"
+                  href="https://www.linkedin.com/in/sanjay--mohan/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:text-primary/80 transition-colors"

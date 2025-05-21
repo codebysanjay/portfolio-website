@@ -156,15 +156,51 @@ export default function AdminSecretLoginPage() {
     setError("");
     setSuccess("");
     try {
+      console.log('Starting Google sign-in...');
+      console.log('Firebase config:', {
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        // Don't log sensitive keys
+      });
+      
       const result = await signInWithPopup(auth, googleProvider);
+      console.log('Sign-in successful:', {
+        email: result.user.email,
+        displayName: result.user.displayName,
+        // Don't log sensitive user data
+      });
+
       // Check if the user's email is authorized
       const authorizedEmails = process.env.NEXT_PUBLIC_AUTHORIZED_EMAILS?.split(',') || [];
+      console.log('Authorized emails:', authorizedEmails);
+      
       if (!authorizedEmails.includes(result.user.email || '')) {
+        console.log('Unauthorized email attempt:', result.user.email);
         await signOut(auth);
         setError("Unauthorized email address. Please use an authorized account.");
+      } else {
+        console.log('User authorized successfully');
       }
     } catch (err: any) {
-      setError(err.message);
+      console.error('Google sign-in error:', {
+        code: err.code,
+        message: err.message,
+        name: err.name,
+        stack: err.stack,
+      });
+      
+      // Provide more user-friendly error messages
+      if (err.code === 'auth/popup-blocked') {
+        setError('Please allow popups for this website to sign in with Google.');
+      } else if (err.code === 'auth/popup-closed-by-user') {
+        setError('Sign-in was cancelled. Please try again.');
+      } else if (err.code === 'auth/cancelled-popup-request') {
+        setError('Sign-in was cancelled. Please try again.');
+      } else if (err.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection and try again.');
+      } else {
+        setError(err.message || 'An error occurred during sign-in. Please try again.');
+      }
     }
   };
 

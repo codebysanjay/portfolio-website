@@ -10,21 +10,21 @@ const projects = [
     description: 'A feature-rich Android application built with Kotlin, Jetpack Compose, and Clean Architecture. Implements MVVM pattern, Room database, and follows Material Design 3 guidelines.',
     image: '/projects/android-app.jpg',
     tags: ['Kotlin', 'Jetpack Compose', 'Clean Architecture', 'MVVM'],
-    link: 'https://github.com/sanjaymohan/android-app'
+    link: 'https://github.com/codebysanjay/android-app'
   },
   {
     title: 'E-commerce Mobile App',
     description: 'A full-featured e-commerce application with product catalog, cart management, and secure payment integration. Built with modern Android development practices.',
     image: '/projects/ecommerce-app.jpg',
     tags: ['Kotlin', 'Retrofit', 'Room', 'Coroutines'],
-    link: 'https://github.com/sanjaymohan/ecommerce-app'
+    link: 'https://github.com/codebysanjay/ecommerce-app'
   },
   {
     title: 'Social Media App',
     description: 'A social networking application with real-time chat, feed updates, and user profiles. Implements Firebase for backend services and follows Material Design principles.',
     image: '/projects/social-app.jpg',
     tags: ['Kotlin', 'Firebase', 'Material Design', 'Real-time'],
-    link: 'https://github.com/sanjaymohan/social-app'
+    link: 'https://github.com/codebysanjay/social-app'
   }
 ];
 
@@ -104,7 +104,7 @@ const Projects = () => {
           </div>
           <div className="mt-10 sm:mt-12 text-center px-4 sm:px-0">
             <Link
-              href="https://github.com/sanjaymohan?tab=repositories"
+              href="https://github.com/codebysanjay?tab=repositories"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-primary/90 transition-colors text-sm sm:text-base w-full sm:w-auto"

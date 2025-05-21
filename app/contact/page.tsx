@@ -103,7 +103,7 @@ export default function ContactPage() {
                 animate="animate"
               >
                 {[
-                  { name: 'GitHub', url: 'https://github.com/sanjaymohan' },
+                  { name: 'GitHub', url: 'https://github.com/codebysanjay' },
                   { name: 'LinkedIn', url: 'https://www.linkedin.com/in/sanjay--mohan/' },
                   { name: 'X', url: 'https://x.com/sanjaymohan17' }
                 ].map((social, index) => (

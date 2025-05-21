@@ -83,7 +83,7 @@ const About: React.FC = () => {
                 variants={itemAnimation}
               >
                 <motion.a
-                  href="https://github.com/sanjaymohan3798"
+                  href="https://github.com/codebysanjay"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary hover:text-primary/80 transition-colors"

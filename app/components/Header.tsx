@@ -13,7 +13,7 @@ import { Github, Linkedin } from 'lucide-react';
 const socialLinks = [
   {
     name: 'GitHub',
-    url: 'https://github.com/sanjaymohan',
+    url: 'https://github.com/codebysanjay',
     icon: FiGithub,
   },
   {

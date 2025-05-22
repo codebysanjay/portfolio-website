@@ -24,63 +24,62 @@ const blogCollection = collection(db, 'blogs');
 export const getBlogPosts = cache(async (): Promise<BlogPost[]> => {
   try {
     console.log('Starting getBlogPosts...');
-    console.log('Firebase config:', {
-      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      // Don't log sensitive keys
-    });
-
     const q = query(blogCollection, orderBy('date', 'desc'));
-    console.log('Created query:', q);
-    
-    console.log('Fetching documents...');
     const querySnapshot = await getDocs(q);
-    console.log('Query snapshot size:', querySnapshot.size);
     
     if (querySnapshot.empty) {
       console.log('No blog posts found in Firestore');
       return [];
     }
 
-    console.log('Processing blog posts...');
     const posts = await Promise.all(
       querySnapshot.docs.map(async (doc) => {
-        console.log('Processing document:', doc.id);
         const data = doc.data();
-        console.log('Document data:', {
-          title: data.title,
-          date: data.date,
-          author: data.author,
-          tags: data.tags,
-          // Don't log full content
-        });
+        
+        // Skip if the document is marked as deleted or doesn't exist
+        if (!data || data.deleted) {
+          return null;
+        }
 
-        const processedContent = await remark()
-          .use(html)
-          .process(data.content);
-        const contentHtml = processedContent.toString();
+        try {
+          const processedContent = await remark()
+            .use(html)
+            .process(data.content);
+          const contentHtml = processedContent.toString();
 
-        return {
-          slug: doc.id,
-          title: data.title,
-          date: (data.date as Timestamp).toDate().toISOString(),
-          author: data.author || { name: 'Unknown Author', email: '', photoURL: '' },
-          tags: data.tags,
-          excerpt: data.excerpt,
-          content: contentHtml,
-        };
+          // Handle date conversion safely
+          let dateString: string;
+          if (data.date instanceof Timestamp) {
+            dateString = data.date.toDate().toISOString();
+          } else if (typeof data.date === 'string') {
+            dateString = new Date(data.date).toISOString();
+          } else {
+            console.warn(`Invalid date format for post ${doc.id}:`, data.date);
+            dateString = new Date().toISOString(); // Fallback to current date
+          }
+
+          return {
+            slug: doc.id,
+            title: data.title,
+            date: dateString,
+            author: data.author || { name: 'Unknown Author', email: '', photoURL: '' },
+            tags: data.tags || [],
+            excerpt: data.excerpt || '',
+            content: contentHtml,
+          };
+        } catch (error) {
+          console.error(`Error processing blog post ${doc.id}:`, error);
+          return null;
+        }
       })
     );
 
-    console.log('Successfully processed', posts.length, 'blog posts');
-    return posts;
+    // Filter out null posts (deleted or invalid)
+    const validPosts = posts.filter((post): post is BlogPost => post !== null);
+    console.log('Successfully processed', validPosts.length, 'blog posts');
+    return validPosts;
   } catch (error) {
     console.error('Error in getBlogPosts:', error);
-    if (error instanceof Error) {
-      console.error('Error name:', error.name);
-      console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-    }
     throw error;
   }
 });
@@ -91,7 +90,7 @@ export const getBlogPost = cache(async (slug: string): Promise<BlogPost | null> 
     const docRef = doc(blogCollection, slug);
     const docSnap = await getDoc(docRef);
 
-    if (!docSnap.exists()) {
+    if (!docSnap.exists() || docSnap.data()?.deleted) {
       return null;
     }
 
@@ -101,13 +100,24 @@ export const getBlogPost = cache(async (slug: string): Promise<BlogPost | null> 
       .process(data.content);
     const contentHtml = processedContent.toString();
 
+    // Handle date conversion safely
+    let dateString: string;
+    if (data.date instanceof Timestamp) {
+      dateString = data.date.toDate().toISOString();
+    } else if (typeof data.date === 'string') {
+      dateString = new Date(data.date).toISOString();
+    } else {
+      console.warn(`Invalid date format for post ${slug}:`, data.date);
+      dateString = new Date().toISOString(); // Fallback to current date
+    }
+
     return {
       slug: docSnap.id,
       title: data.title,
-      date: (data.date as Timestamp).toDate().toISOString(),
+      date: dateString,
       author: data.author || { name: 'Unknown Author', email: '', photoURL: '' },
-      tags: data.tags,
-      excerpt: data.excerpt,
+      tags: data.tags || [],
+      excerpt: data.excerpt || '',
       content: contentHtml,
     };
   } catch (error) {

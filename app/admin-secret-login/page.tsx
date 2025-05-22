@@ -10,6 +10,19 @@ const SESSION_TIMEOUT = 60 * 60 * 1000;
 const SESSION_START_KEY = 'admin_session_start';
 const SESSION_TIMEOUT_KEY = 'admin_session_timeout';
 
+interface Blog {
+  slug: string;
+  title: string;
+  date: string;
+  content: string;
+  excerpt?: string;
+  tags?: string[];
+  author?: {
+    name: string;
+    photoURL?: string;
+  };
+}
+
 export default function AdminSecretLoginPage() {
   const [user, setUser] = useState<any>(null);
   const [error, setError] = useState("");
@@ -25,6 +38,7 @@ export default function AdminSecretLoginPage() {
     excerpt: "",
     content: "",
   });
+  const [blogs, setBlogs] = useState<Blog[]>([]);
 
   // Function to handle automatic logout
   const handleSessionTimeout = async () => {
@@ -245,6 +259,26 @@ export default function AdminSecretLoginPage() {
       });
       setSuccess("Blog post created successfully!");
       setForm({ title: "", date: "", tags: "", excerpt: "", content: "" });
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  // Handle blog post deletion
+  const handleDeleteBlog = async (slug: string) => {
+    if (!window.confirm('Are you sure you want to delete this blog post?')) {
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+    try {
+      const blogRef = doc(collection(db, "blogs"), slug);
+      // Instead of deleting, mark as deleted
+      await setDoc(blogRef, { deleted: true, updatedAt: Timestamp.now() }, { merge: true });
+      setSuccess("Blog post deleted successfully!");
+      // Refresh the blog list
+      setBlogs(blogs.filter(blog => blog.slug !== slug));
     } catch (err: any) {
       setError(err.message);
     }

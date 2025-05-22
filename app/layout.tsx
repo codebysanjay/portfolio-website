@@ -11,8 +11,12 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  title: 'Sanjay Mohan - Android Developer',
-  description: 'Portfolio website of Sanjay Mohan, an Android Developer specializing in Kotlin, Jetpack Compose, and Clean Architecture.',
+  title: 'Sanjay Mohan - Android Developer & Software Engineer',
+  description: 'Sanjay Mohan is an Android Developer and Software Engineer specializing in Kotlin, Jetpack Compose, and Clean Architecture. Expert in building modern, scalable mobile applications.',
+  metadataBase: new URL('https://sanjaymohan.dev'),
+  alternates: {
+    canonical: 'https://sanjaymohan.dev',
+  },
 };
 
 export default function RootLayout({

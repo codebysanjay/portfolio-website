@@ -1,7 +1,7 @@
 {
-  "name": "Sanjay Mohan",
-  "short_name": "SM",
-  "description": "Portfolio website of Sanjay Mohan, an Android Developer",
+  "name": "Sanjay Mohan - Android Developer & Software Engineer",
+  "short_name": "Sanjay Mohan",
+  "description": "Portfolio website of Sanjay Mohan, an Android Developer and Software Engineer specializing in Kotlin, Jetpack Compose, and Clean Architecture",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -17,5 +17,8 @@
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display": "standalone",
-  "start_url": "/"
+  "start_url": "/",
+  "scope": "/",
+  "orientation": "portrait",
+  "categories": ["portfolio", "developer", "android", "software"]
 } 

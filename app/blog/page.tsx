@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { generateBlogListMetadata } from '../lib/metadata';
 import Script from 'next/script';
 import Image from 'next/image';
+import { Timestamp } from 'firebase/firestore';
 
 export const metadata = generateBlogListMetadata();
 
@@ -29,10 +30,27 @@ async function fetchBlogPosts(): Promise<BlogPost[]> {
     
     const posts = querySnapshot.docs.map(doc => {
       const data = doc.data();
+      
+      // Skip if the document is marked as deleted
+      if (data.deleted) {
+        return null;
+      }
+
+      // Handle date conversion safely
+      let dateString: string;
+      if (data.date instanceof Timestamp) {
+        dateString = data.date.toDate().toISOString();
+      } else if (typeof data.date === 'string') {
+        dateString = new Date(data.date).toISOString();
+      } else {
+        console.warn(`Invalid date format for post ${doc.id}:`, data.date);
+        dateString = new Date().toISOString(); // Fallback to current date
+      }
+
       return {
         id: doc.id,
         title: data.title,
-        date: data.date,
+        date: dateString,
         content: data.content,
         slug: data.slug,
         excerpt: data.excerpt || data.content.substring(0, 200) + '...',
@@ -42,7 +60,7 @@ async function fetchBlogPosts(): Promise<BlogPost[]> {
         },
         tags: data.tags || []
       } as BlogPost;
-    });
+    }).filter((post): post is BlogPost => post !== null);
     
     return posts;
   } catch (error) {
@@ -142,7 +160,11 @@ export default async function BlogPage() {
                   </Link>
                   <div className="flex items-center text-sm text-muted-foreground mb-4">
                     <time dateTime={post.date}>
-                      {new Date(post.date).toLocaleDateString()}
+                      {new Date(post.date).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
                     </time>
                     <span className="mx-2">•</span>
                     <div className="flex items-center gap-2">
